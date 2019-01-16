@@ -1,25 +1,33 @@
 import React, { Component } from 'react';
 import logo from './logo.svg';
 import './App.css';
+import Composition from './components/composition.js'
+import Messages from './components/messages.js'
+import Toolbar from './components/toolbar.js'
 
 class App extends Component {
+
+  state={
+    messages:[]
+  }
+
+  // Compose=()=>{
+  //   console.log("hello world")
+  //   console.log(this.state.messages)
+  // }
+
+  async componentDidMount() {
+  const response = await fetch('http://localhost:8082/api/messages')
+  const json = await response.json()
+  this.setState({messages: json})
+  }
+
+
   render() {
     return (
       <div className="App">
-        <header className="App-header">
-          <img src={logo} className="App-logo" alt="logo" />
-          <p>
-            Edit <code>src/App.js</code> and save to reload.
-          </p>
-          <a
-            className="App-link"
-            href="https://reactjs.org"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            Learn React
-          </a>
-        </header>
+      <Toolbar Compose={this.Compose}/>
+      <Messages messages={this.state.messages}/>
       </div>
     );
   }
