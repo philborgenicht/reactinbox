@@ -1,10 +1,18 @@
 import React, {Component} from 'react'
+import App from "../App.js"
+import { BrowserRouter as Router, Route, Link, Switch } from "react-router-dom";
 
 class Composition extends Component{
   render(){
     return(
-      <form class="form-horizontal well">
+      <form onSubmit={this.props.sendMessage} class="form-horizontal well">
         <div class="form-group">
+<Router>
+<Route path="/App" render={()=> <App/>}/>
+</Router>
+<Router>
+<Link to="/App">return to inbox</Link>
+</Router>
           <div class="col-sm-8 col-sm-offset-2">
             <h4>Compose Message</h4>
           </div>

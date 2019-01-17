@@ -12,12 +12,13 @@ const Messages = (props) => {
 
           <div className="row">
 
-            <div className="col-lg-2 columnheading">read/starred</div>
+            <div className="col-lg-1 columnheading">selected</div>
+            <div className="col-lg-1 columnheading">starred</div>
+            <div className="col-lg-1 columnheading">read</div>
+            <div className="col-lg-7 columnheading">subject</div>
 
-            <div className="col-lg-3 columnheading">subject</div>
-            <div className="col-lg-3 columnheading">body</div>
             <div className="col-lg-2 columnheading">labels</div>
-            <div classname="col-lgl-2 columnheading">id</div>
+
 
 
           </div>
@@ -25,12 +26,17 @@ const Messages = (props) => {
         <div>
         {props.messages.map(message =>
           <Message
+          key={message.id}
           subject={message.subject}
           read={message.read}
+          readMessage={props.readMessage}
           starred={message.starred}
           body={message.body}
           labels={message.labels}
           id={message.id}
+          select={props.select}
+          star={props.star}
+          selected={message.selected}
             />)}
 
         </div>

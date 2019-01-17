@@ -5,29 +5,132 @@ import Composition from './components/composition.js'
 import Messages from './components/messages.js'
 import Toolbar from './components/toolbar.js'
 
+import { BrowserRouter as Router, Route, Link, Switch } from "react-router-dom";
+
 class App extends Component {
 
   state={
     messages:[]
   }
-
-  // Compose=()=>{
-  //   console.log("hello world")
-  //   console.log(this.state.messages)
-  // }
-
   async componentDidMount() {
   const response = await fetch('http://localhost:8082/api/messages')
   const json = await response.json()
   this.setState({messages: json})
   }
+  sendMessage=async(message) =>{
+      const response = await fetch('http://localhost:8082/api/messages', {
+        method: 'POST',
+        body: JSON.stringify({
+          subject:message.subject,
+          body:message.body
+        }),
+        headers: {
+          'Content-Type': 'application/json',
+          'Accept': 'application/json'
+        }
+      })
+        const newMessage = await response.json()
+            this.setState({messages:[newMessage,...this.state.messages]})
+            }
+
+
+select=(e)=>{
+  console.log(e.target.id)
+  let id=e.target.id
+  let messages=this.state.messages
+  console.log(messages)
+  let selected=messages[id-1]
+  console.log(selected)
+  let newmessages= {...selected, selected: (!selected.selected)}
+  console.log(newmessages)
+  let selectedindex=messages.indexOf(selected)
+  console.log(selectedindex)
+  this.setState({
+    messages: [...this.state.messages.slice(0, selectedindex), newmessages ,...this.state.messages.slice(selectedindex+1)]
+  })
+}
+star=(e)=>{
+  console.log(e.target.id)
+  let id=e.target.id
+  let messages=this.state.messages
+  console.log(messages)
+  let starred=messages[id-1]
+  console.log(starred)
+  let newmessages= {...starred, starred: (!starred.starred)}
+  console.log(newmessages)
+  let starredindex=messages.indexOf(starred)
+  console.log(starredindex)
+  this.setState({
+    messages: [...this.state.messages.slice(0, starredindex), newmessages ,...this.state.messages.slice(starredindex+1)]
+  })
+}
+
+readMessage=(e)=>{
+  console.log(e.target.id)
+  let id=e.target.id
+  let messages=this.state.messages
+  console.log(messages)
+  let read=messages[id-1]
+  console.log(read)
+  let newmessages= {...read, read: (read.read? false: true)}
+  console.log(newmessages)
+  let readindex=messages.indexOf(read)
+  console.log(readindex)
+  this.setState({
+    messages: [...this.state.messages.slice(0, readindex), newmessages ,...this.state.messages.slice(readindex+1)]
+  })
+  
+}
+
+unlight=(e)=>{
+  console.log("unselected")
+  console.log(e.target)
+}
+
+highlight=(e)=>{
+  console.log("highlighted")
+  console.log(e.target)
+}
+
+delete=(e)=>{
+  console.log("deleted")
+  console.log(e.target)
+}
+
+selectAll=(e)=>{
+  console.log("select all")
+  console.log(this.state.messages)
+
+
+}
+
+deselectAll=(e)=>{
+  console.log("deselect all")
+  console.log(e.target)
+}
+
+removeLabel=(e)=>{
+  console.log('remove')
+  console.log(e.target)
+}
+
+applyLabel=(e)=>{
+  console.log('apply')
+  console.log(e.target)
+}
+
+
 
 
   render() {
     return (
-      <div className="App">
-      <Toolbar Compose={this.Compose}/>
-      <Messages messages={this.state.messages}/>
+      <div className="App container">
+
+
+      <div className="row justify-content-center">
+      <Toolbar sendMessage={this.sendMessage} removeLabel={this.removeLabel} applyLabel={this.applyLabel} selectAll={this.selectAll} deselectAll={this.deselectAll} delete={this.delete} highlight={this.highlight} unlight={this.unlight} Compose={this.Compose}/>
+      </div>
+      <Messages selected={this.state.messages.selected} messages={this.state.messages} readMessage={this.readMessage} select={this.select} star={this.star}/>
       </div>
     );
   }

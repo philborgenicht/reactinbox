@@ -2,46 +2,35 @@ import React, {Component} from 'react'
 
 const Message = (props) => {
   return (
-    // <div classNameName="list-group-item">
-    //   <div className="row">
-    //     <div className="col-lg-2">{props.subject}</div>
-    //     <div className="col-lg-2"><input type="checkbox"/></div>
-    //     <div className="col-lg-2"><input type="checkbox"/></div>
-    //     <div className="col-lg-2">{props.body}</div>
-    //     <div className="col-lg-2">{props.labels}</div>
-    //     <div className="col-lg-2">{props.id}</div>
-    //   </div>
-    // </div>
-    <div class="row message unread">
-      <div class="col-xs-1">
+    <div class={props.read? "row message read" : "row message unread" }>
+      <div class="col-xs-3">
         <div class="row">
-          <div class="col-xs-6">
-            <input type="checkbox" />
+          <div class="col-xs-4">
+            <input id={props.id} onClick={props.select} type="checkbox" />
           </div>
-          <div class="col-xs-6">
-            <i class="star fa fa-star-o"></i>
+          <div class="col-xs-4">
+            <i id={props.id} onClick={props.star} class={props.starred? "star fa fa-star" : "star fa fa-star-o"} ></i>
           </div>
+          <div class="col-xs-4">
+            <input id={props.id} onClick={props.readMessage} type="checkbox" />
+          </div>
+
         </div>
       </div>
-      <div class="col-xs-11">
-      <div class="row">
-        <div class="col-xs-3">
-                            <div>
-                              {props.subject}
-                            </div>
-        </div>
-        <div class="col-xs-3">
-                            <div>
-                              {props.body}
-                            </div>
-        </div>
-        <div class="col-xs-3">
-        {props.labels}
-        </div>
-        <div class="col-xs-3">
-        {props.id}
-        </div>
-      </div>
+      <div class="col-xs-9">
+            <div class="row">
+
+            <div class="col-xs-9">
+
+                {props.subject}
+            </div>
+            <div class="col-xs-3">
+                {props.labels? props.labels[0] ? <span class="label label-warning">dev</span> : "" :""}
+                {props.labels? props.labels[1]?<span class="label label-warning">gschool</span> : "" : ""}
+            </div>
+
+
+            </div>
       </div>
     </div>
   )
