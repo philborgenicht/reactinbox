@@ -2,7 +2,7 @@ import React, {Component} from 'react'
 
 const Message = (props) => {
   return (
-    <div class={props.read? "row message read" : "row message unread" }>
+    <div class={props.selected? "row message selected" : "row message unread"&&  props.read? "row message read" : "row message unread"} >
       <div class="col-xs-3">
         <div class="row">
           <div class="col-xs-4">

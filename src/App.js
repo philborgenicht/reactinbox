@@ -17,21 +17,7 @@ class App extends Component {
   const json = await response.json()
   this.setState({messages: json})
   }
-  sendMessage=async(message) =>{
-      const response = await fetch('http://localhost:8082/api/messages', {
-        method: 'POST',
-        body: JSON.stringify({
-          subject:message.subject,
-          body:message.body
-        }),
-        headers: {
-          'Content-Type': 'application/json',
-          'Accept': 'application/json'
-        }
-      })
-        const newMessage = await response.json()
-            this.setState({messages:[newMessage,...this.state.messages]})
-            }
+
 
 
 select=(e)=>{
@@ -63,6 +49,18 @@ star=(e)=>{
   this.setState({
     messages: [...this.state.messages.slice(0, starredindex), newmessages ,...this.state.messages.slice(starredindex+1)]
   })
+  fetch('http://localhost:8082/api/messages', {
+    method: 'PATCH',
+    body: JSON.stringify({
+      "messageIds": [id],
+      "command": "star",
+      "starred": true
+    }),
+    headers: {
+      'Content-Type': 'application/json',
+      'Accept': 'application/json'
+    }
+  })
 }
 
 readMessage=(e)=>{
@@ -79,27 +77,86 @@ readMessage=(e)=>{
   this.setState({
     messages: [...this.state.messages.slice(0, readindex), newmessages ,...this.state.messages.slice(readindex+1)]
   })
-  
+
+  fetch('http://localhost:8082/api/messages', {
+    method: 'PATCH',
+    body: JSON.stringify({
+      "messageIds": [id],
+      "command": "read",
+      "read": true
+    }),
+    headers: {
+      'Content-Type': 'application/json',
+      'Accept': 'application/json'
+    }
+  })
 }
 
 unlight=(e)=>{
-  console.log("unselected")
-  console.log(e.target)
+
+  fetch('http://localhost:8082/api/messages', {
+    method: 'PATCH',
+    body: JSON.stringify({
+      "messageIds": this.state.messages.filter(message=>message.selected===true).map(message=>message.id),
+      "command": "read",
+      "read": false
+    }),
+    headers: {
+      'Content-Type': 'application/json',
+      'Accept': 'application/json'
+    }
+  })
+
 }
 
 highlight=(e)=>{
   console.log("highlighted")
   console.log(e.target)
+  fetch('http://localhost:8082/api/messages', {
+    method: 'PATCH',
+    body: JSON.stringify({
+      "messageIds": this.state.messages.filter(message=>message.selected===true).map(message=>message.id),
+      "command": "read",
+      "read": true
+    }),
+    headers: {
+      'Content-Type': 'application/json',
+      'Accept': 'application/json'
+    }
+  })
 }
 
 delete=(e)=>{
   console.log("deleted")
   console.log(e.target)
+  fetch('http://localhost:8082/api/messages', {
+    method: 'PATCH',
+    body: JSON.stringify({
+      "messageIds": this.state.messages.filter(message=>message.selected===true).map(message=>message.id),
+      "command": "delete"
+    }),
+    headers: {
+      'Content-Type': 'application/json',
+      'Accept': 'application/json'
+    }
+  })
 }
 
 selectAll=(e)=>{
-  console.log("select all")
-  console.log(this.state.messages)
+  console.log("selectall")
+  console.log(this.state.messages.map)
+  fetch('http://localhost:8082/api/messages', {
+    method: 'PATCH',
+    body: JSON.stringify({
+      "messageIds": this.state.messages.map(message=> message.id),
+      "command": "select",
+      "selected": true
+    }),
+    headers: {
+      'Content-Type': 'application/json',
+      'Accept': 'application/json'
+    }
+  })
 
 
 }
