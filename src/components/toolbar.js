@@ -2,31 +2,34 @@ import React, {Component} from 'react'
 import Composition from './composition.js'
 import { BrowserRouter as Router, Route, Link, Switch } from "react-router-dom";
 
+
+
+
+
 class Toolbar extends Component{
 
 
 
+
 render(){
+
   return(
 
 
     <div class="row toolbar">
       <div class="col-md-12">
         <p class="pull-right">
-          <span class="badge badge">2</span>
+          <span class="badge badge">{this.props.currentMessages.filter(message=>message.read===false).length}</span>
           unread messages
         </p>
-<Router>
-<Route path="/composition" render={()=> <Composition sendMessage={this.props.sendMessage}/>}/>
-</Router>
-<Router>
-<Link to="/composition">Compose new...</Link>
-</Router>
-        <a onClick={this.props.selectAll} class="btn btn-danger">
-          <i class="fa fa-plus"></i>
-        </a>
+        <Link to="/composition">Compose new...</Link>
 
-        <button onClick={this.props.deselectAll} class="btn btn-default">
+
+        <button onClick={this.props.selectAll}  class="btn btn-default">
+          <i class="fa fa-square-o"></i>
+        </button>
+
+        <button onClick={this.props.deselectAll} className="btn btn-default">
           <i class="fa fa-minus-square-o"></i>
         </button>
 

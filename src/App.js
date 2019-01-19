@@ -4,6 +4,7 @@ import './App.css';
 import Composition from './components/composition.js'
 import Messages from './components/messages.js'
 import Toolbar from './components/toolbar.js'
+import Read from './components/read.js'
 
 import { BrowserRouter as Router, Route, Link, Switch } from "react-router-dom";
 
@@ -20,12 +21,13 @@ class App extends Component {
 
 
 
-select=(e)=>{
-  console.log(e.target.id)
-  let id=e.target.id
+select=(id)=>{
+
   let messages=this.state.messages
   console.log(messages)
-  let selected=messages[id-1]
+  let chosen=messages[id-1]
+  console.log("chosen", chosen)
+  let selected=messages.filter(message=> message.id===id)[0]
   console.log(selected)
   let newmessages= {...selected, selected: (!selected.selected)}
   console.log(newmessages)
@@ -35,12 +37,11 @@ select=(e)=>{
     messages: [...this.state.messages.slice(0, selectedindex), newmessages ,...this.state.messages.slice(selectedindex+1)]
   })
 }
-star=(e)=>{
-  console.log(e.target.id)
-  let id=e.target.id
+star=(elid)=>{
+
   let messages=this.state.messages
   console.log(messages)
-  let starred=messages[id-1]
+  let starred=messages.filter(message=>message.id===elid)[0]
   console.log(starred)
   let newmessages= {...starred, starred: (!starred.starred)}
   console.log(newmessages)
@@ -52,7 +53,7 @@ star=(e)=>{
   fetch('http://localhost:8082/api/messages', {
     method: 'PATCH',
     body: JSON.stringify({
-      "messageIds": [id],
+      "messageIds": [elid],
       "command": "star",
       "starred": true
     }),
@@ -63,36 +64,52 @@ star=(e)=>{
   })
 }
 
-readMessage=(e)=>{
-  console.log(e.target.id)
-  let id=e.target.id
+readMessage=(messId)=>{
+
   let messages=this.state.messages
-  console.log(messages)
-  let read=messages[id-1]
+
+  let read=messages.filter(message=>message.id===messId)[0]
   console.log(read)
   let newmessages= {...read, read: (read.read? false: true)}
-  console.log(newmessages)
+
   let readindex=messages.indexOf(read)
-  console.log(readindex)
+
   this.setState({
     messages: [...this.state.messages.slice(0, readindex), newmessages ,...this.state.messages.slice(readindex+1)]
   })
 
-  fetch('http://localhost:8082/api/messages', {
-    method: 'PATCH',
-    body: JSON.stringify({
-      "messageIds": [id],
-      "command": "read",
-      "read": true
-    }),
-    headers: {
-      'Content-Type': 'application/json',
-      'Accept': 'application/json'
-    }
-  })
+fetch('http://localhost:8082/api/messages', {
+  method: 'PATCH',
+  body: JSON.stringify({
+    "messageIds": [messId],
+    "command": "read",
+    "read": true
+  }),
+  headers: {
+    'Content-Type': 'application/json',
+    'Accept': 'application/json'
+  }
+})
 }
 
+
 unlight=(e)=>{
+  const newState={...this.state}
+  newState.messages.filter(message=>message.selected===true).map(message=>{
+    if(message.read){
+      message.read = false
+    }
+  })
+  this.setState(newState)
+  console.log(e.target.id)
+  let id=e.target.id
+  let currentMess=this.state.messages
+  console.log(id, currentMess)
+  let didNotRead=currentMess.filter(message=>message.read===true)
+  console.log("not read", didNotRead)
+  let didRead=currentMess.filter(message=>message.read===false)
+  console.log("did read", didRead)
+
 
   fetch('http://localhost:8082/api/messages', {
     method: 'PATCH',
@@ -110,8 +127,13 @@ unlight=(e)=>{
 }
 
 highlight=(e)=>{
-  console.log("highlighted")
-  console.log(e.target)
+  const newState={...this.state}
+  newState.messages.filter(message=>message.selected===true).map(message=>{
+    if(!message.read){
+      message.read = true
+    }
+  })
+  this.setState(newState)
   fetch('http://localhost:8082/api/messages', {
     method: 'PATCH',
     body: JSON.stringify({
@@ -126,10 +148,9 @@ highlight=(e)=>{
   })
 }
 
-delete=(e)=>{
-  console.log("deleted")
-  console.log(e.target)
-  fetch('http://localhost:8082/api/messages', {
+delete=async (e)=>{
+
+  await fetch('http://localhost:8082/api/messages', {
     method: 'PATCH',
     body: JSON.stringify({
       "messageIds": this.state.messages.filter(message=>message.selected===true).map(message=>message.id),
@@ -140,55 +161,115 @@ delete=(e)=>{
       'Accept': 'application/json'
     }
   })
-}
 
-selectAll=(e)=>{
-  console.log("selectall")
-  console.log(this.state.messages.map)
+  const response = await fetch('http://localhost:8082/api/messages')
+  const json = await response.json()
+  this.setState({messages: json})
+  }
+
+
+
+
+
+
+removeLabel=(e)=>{
+  console.log('remove')
+  console.log(e.target)
   fetch('http://localhost:8082/api/messages', {
     method: 'PATCH',
     body: JSON.stringify({
-      "messageIds": this.state.messages.map(message=> message.id),
-      "command": "select",
-      "selected": true
+      "messageIds": this.state.messages.filter(message=>message.selected===true).map(message=>message.id),
+      "command": "removeLabel"
     }),
     headers: {
       'Content-Type': 'application/json',
       'Accept': 'application/json'
     }
   })
-
-
-}
-
-deselectAll=(e)=>{
-  console.log("deselect all")
-  console.log(e.target)
-}
-
-removeLabel=(e)=>{
-  console.log('remove')
-  console.log(e.target)
 }
 
 applyLabel=(e)=>{
   console.log('apply')
   console.log(e.target)
+  fetch('http://localhost:8082/api/messages', {
+    method: 'PATCH',
+    body: JSON.stringify({
+      "messageIds": this.state.messages.filter(message=>message.selected===true).map(message=>message.id),
+      "command": "addLabel"
+    }),
+    headers: {
+      'Content-Type': 'application/json',
+      'Accept': 'application/json'
+    }
+  })
 }
 
+sendMessage=(e)=>{
+
+  console.log('apply')
+  console.log(e.target)
+  let subject=e.target.subject.value
+  let body=e.target.body.value
+  console.log(e.target.subject.value)
+  console.log(e.target.body.value)
+  fetch('http://localhost:8082/api/messages', {
+    method: 'POST',
+    body: JSON.stringify({
+      subject: e.target.subject.value,
+      body: e.target.body.value,
+      selected: false,
+      read: false,
+      starred: false,
+      labels: [],
+    }),
+    headers: {
+      'Content-Type': 'application/json',
+      'Accept': 'application/json'
+    }
+  })
+}
+
+selectAll=()=>{
+  console.log('hello')
+  let highLightedMessages=this.state.messages.map(message=>message.selected=true)
+  this.setState(highLightedMessages)
+}
+
+deselectAll=()=>{
+  console.log('hello')
+  let unHighLightedMessages=this.state.messages.map(message=>message.selected=false)
+  this.setState(unHighLightedMessages)
+}
 
 
 
   render() {
     return (
-      <div className="App container">
+      <Router>
+
+      <Switch>
+      <Route path="/read" render={()=><Read messages={this.state.messages}/>}/>
+      <Route path="/App" render={()=>
+        <div className="App container">
+          <div className="row justify-content-center">
+            <Toolbar currentMessages={this.state.messages} sendMessage={this.sendMessage} removeLabel={this.removeLabel} applyLabel={this.applyLabel} selectAll={this.selectAll} deselectAll={this.deselectAll} delete={this.delete} highlight={this.highlight} unlight={this.unlight} Compose={this.Compose}/>
+            </div>
+            <Messages selected={this.state.messages.selected} messages={this.state.messages} readMessage={this.readMessage} select={this.select} star={this.star}/>
+            </div>}/>
+      <Route path="/composition" render={()=> <Composition
+         sendMessage={this.sendMessage}/>}/>
+         <Route exact path="/" render={()=> <div className="App container">
+           <div className="row justify-content-center">
+             <Toolbar currentMessages={this.state.messages} sendMessage={this.sendMessage} removeLabel={this.removeLabel} applyLabel={this.applyLabel} selectAll={this.selectAll} deselectAll={this.deselectAll} delete={this.delete} highlight={this.highlight} unlight={this.unlight} Compose={this.Compose}/>
+             </div>
+             <Messages selected={this.state.messages.selected} messages={this.state.messages} readMessage={this.readMessage} select={this.select} star={this.star}/>
+             </div>}/>
+      </Switch>
 
 
-      <div className="row justify-content-center">
-      <Toolbar sendMessage={this.sendMessage} removeLabel={this.removeLabel} applyLabel={this.applyLabel} selectAll={this.selectAll} deselectAll={this.deselectAll} delete={this.delete} highlight={this.highlight} unlight={this.unlight} Compose={this.Compose}/>
-      </div>
-      <Messages selected={this.state.messages.selected} messages={this.state.messages} readMessage={this.readMessage} select={this.select} star={this.star}/>
-      </div>
+
+
+      </Router>
     );
   }
 }
