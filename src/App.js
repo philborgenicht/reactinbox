@@ -83,7 +83,7 @@ fetch('http://localhost:8082/api/messages', {
   body: JSON.stringify({
     "messageIds": [messId],
     "command": "read",
-    "read": true
+    "read": !read.read
   }),
   headers: {
     'Content-Type': 'application/json',
@@ -172,14 +172,24 @@ delete=async (e)=>{
 
 
 
+
 removeLabel=(e)=>{
+  const newState={...this.state}
+  let newLabel=e.target.value
+  let selectedMessages=newState.messages.filter(message=>message.selected===true)
+  console.log(selectedMessages)
+
+  selectedMessages.map(message=> message.labels.splice(message.labels.indexOf(newLabel),1))
+  this.setState(selectedMessages)
+
   console.log('remove')
   console.log(e.target)
   fetch('http://localhost:8082/api/messages', {
     method: 'PATCH',
     body: JSON.stringify({
       "messageIds": this.state.messages.filter(message=>message.selected===true).map(message=>message.id),
-      "command": "removeLabel"
+      "command": "removeLabel",
+      "label": e.target.value
     }),
     headers: {
       'Content-Type': 'application/json',
@@ -189,13 +199,22 @@ removeLabel=(e)=>{
 }
 
 applyLabel=(e)=>{
+  const newState={...this.state}
+  let newLabel=e.target.value
+  let selectedMessages=newState.messages.filter(message=>message.selected===true)
+  console.log(selectedMessages)
+
+  selectedMessages.map(message=> message.labels.push(newLabel))
+  this.setState(selectedMessages)
+
   console.log('apply')
   console.log(e.target)
   fetch('http://localhost:8082/api/messages', {
     method: 'PATCH',
     body: JSON.stringify({
       "messageIds": this.state.messages.filter(message=>message.selected===true).map(message=>message.id),
-      "command": "addLabel"
+      "command": "addLabel",
+      "label": e.target.value
     }),
     headers: {
       'Content-Type': 'application/json',
@@ -231,11 +250,18 @@ sendMessage=(e)=>{
 
 selectAll=()=>{
   console.log('hello')
+  let checkboxes=[...document.getElementsByClassName("phil")]
+  checkboxes.map(checkbox=>checkbox.checked="checked")
+  console.log(checkboxes)
   let highLightedMessages=this.state.messages.map(message=>message.selected=true)
   this.setState(highLightedMessages)
 }
 
 deselectAll=()=>{
+  console.log('hello')
+  let checkboxes=[...document.getElementsByClassName("phil")]
+  checkboxes.map(checkbox=>checkbox.checked="")
+  console.log(checkboxes)
   console.log('hello')
   let unHighLightedMessages=this.state.messages.map(message=>message.selected=false)
   this.setState(unHighLightedMessages)
@@ -248,7 +274,7 @@ deselectAll=()=>{
       <Router>
 
       <Switch>
-      <Route path="/read" render={()=><Read messages={this.state.messages}/>}/>
+
       <Route path="/App" render={()=>
         <div className="App container">
           <div className="row justify-content-center">
@@ -260,7 +286,7 @@ deselectAll=()=>{
          sendMessage={this.sendMessage}/>}/>
          <Route exact path="/" render={()=> <div className="App container">
            <div className="row justify-content-center">
-             <Toolbar currentMessages={this.state.messages} sendMessage={this.sendMessage} removeLabel={this.removeLabel} applyLabel={this.applyLabel} selectAll={this.selectAll} deselectAll={this.deselectAll} delete={this.delete} highlight={this.highlight} unlight={this.unlight} Compose={this.Compose}/>
+             <Toolbar currentMessages={this.state.messages} sendMessage={this.sendMessage} removeLabel={this.removeLabel} applyLabel={this.applyLabel} updateMessage={this.updateMessage} selectAll={this.selectAll} deselectAll={this.deselectAll} delete={this.delete} highlight={this.highlight} unlight={this.unlight} Compose={this.Compose}/>
              </div>
              <Messages selected={this.state.messages.selected} messages={this.state.messages} readMessage={this.readMessage} select={this.select} star={this.star}/>
              </div>}/>

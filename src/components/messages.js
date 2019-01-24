@@ -37,6 +37,7 @@ const Messages = (props) => {
           select={props.select}
           star={props.star}
           selected={message.selected}
+          seeMessage={props.seeMessage}
             />)}
 
         </div>

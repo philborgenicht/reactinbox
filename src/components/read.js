@@ -10,7 +10,7 @@ const Read=(props)=>{
 
     <Link to="/App">return to inbox</Link>
     <div className="list-group-item">
-    {props.messages.map(message=>message.body)}
+    {props.messages.filter(message=>message.id===props.chosenMessage.id).body}
     </div>
     </div>
 
